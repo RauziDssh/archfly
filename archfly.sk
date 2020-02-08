@@ -1,0 +1,68 @@
+command /setflyable <number>:
+	description: Set your home
+	permission: archfly.deploy
+	executable by: players
+	trigger:
+		set {flyable.location} to location of player
+		if arg-1 is less than 20:
+			set {flyable.range} to 20
+		else:
+			set {flyable.range} to arg-1
+		message "半径%{flyable.range}%が飛行可能区域にセットされました"
+
+command /enablefly:
+	description: Teleport yourself to your home
+	permission: archfly.fly
+	executable by: players
+	trigger:
+		if  {flyable.%player%.flying} is not "flying":
+			if distance between {flyable.location} and location of player is less than {flyable.range}:
+				set {flyable.%player%.flying} to "flying"
+				set {flyable.%player%.warned} to "notwarned"
+				make player run command "/fly %player%" as op
+				message "飛行状態になりました。飛行可能区域中心からの距離に注意してください"
+
+command /disablefly:
+	description: Teleport yourself to your home
+	permission: archfly.fly
+	executable by: players
+	trigger:
+		if  {flyable.%player%.flying} is "flying":
+			set {flyable.%player%.flying} to "notflying"
+			set {flyable.%player%.warned} to "notwarned"
+			make player run command "/fly %player%" as op
+			message "飛行状態を解除しました。" to player
+
+command /flystatus:
+	permission: archfly.fly
+	executable by: players
+	trigger:
+		message {flyable.%player%.flying} to player
+
+command /warnstatus:
+	permission: archfly.fly
+	executable by: players
+	trigger:
+		message {flyable.%player%.warned} to player
+
+Every 30 seconds in "world":
+	Loop all players:
+		if {flyable.%loop-player%.flying} is "flying":
+			message "飛行可能区域中心からの距離：%distance between {flyable.location} and location of loop-player%" to loop-player
+			if distance between {flyable.location} and location of loop-player is greater than {flyable.range}:
+				if {flyable.%loop-player%.warned} is not "warned":
+					set {flyable.%loop-player%.warned} to "warned"
+					message "飛行可能区域範囲外です。範囲外にいる場合、30秒で飛行状態が解除されます。" to loop-player
+				else:
+					set {flyable.%loop-player%.flying} to "notflying"
+					set {flyable.%loop-player%.warned} to "notwarned"
+					make loop-player run command "/fly %loop-player%" as op
+					message "飛行状態を解除しました。" to loop-player
+			else:
+				if {flyable.%loop-player%.warned} is "warned":
+					set {flyable.%loop-player%.warned} to "notwarned"
+					message "飛行可能区域範囲内に入りました。" to loop-player
+		else:
+			if distance between {flyable.location} and location of loop-player is less than {flyable.range}:
+				message "飛行可能区域範囲内に入りました。/enableflyコマンドで飛行可能です。" to loop-player
+				
