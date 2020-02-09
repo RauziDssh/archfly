@@ -20,6 +20,7 @@ command /enablefly:
 	executable by: players
 	trigger:
 		if  {flyable.%player%.flying} is not "flying":
+			set y-coordinate of {flyable.location} to y-coordinate of player
 			if distance between {flyable.location} and location of player is less than {flyable.range}:
 				set {flyable.%player%.flying} to "flying"
 				set {flyable.%player%.warned} to "notwarned"
@@ -51,6 +52,7 @@ command /warnstatus:
 
 Every 30 seconds in "world":
 	Loop all players:
+		set y-coordinate of {flyable.location} to y-coordinate of loop-player
 		if {flyable.%loop-player%.flying} is "flying":
 			message "飛行可能区域中心からの距離：%distance between {flyable.location} and location of loop-player%" to loop-player
 			if distance between {flyable.location} and location of loop-player is greater than {flyable.range}:
