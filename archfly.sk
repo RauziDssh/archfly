@@ -1,3 +1,7 @@
+on join:
+	set {flyable.%player%.flying} to "notflying"
+	set {flyable.%player%.warned} to "notwarned"
+	
 command /setflyable <number>:
 	description: Set your home
 	permission: archfly.deploy
